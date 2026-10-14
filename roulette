@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#13141f">
+<title>Boredom Roulette 🎡</title>
+<style>
+:root {
+  --bg: #13141f;
+  --bg2: #1b1d2d;
+  --card: #222538;
+  --card2: #2d314d;
+  --text: #ffffff;
+  --muted: #a6adce;
+  --accent: #00f0ff;
+  --accent2: #ff007f;
+  --accent3: #39ff14;
+  --danger: #ff4757;
+  --wheel1: #00f0ff;
+  --wheel2: #ff007f;
+  --wheel3: #39ff14;
+  --wheel4: #ffaa00;
+  --wheel5: #9d00ff;
+  --wheel6: #00ffaa;
+  --wheel7: #ff0055;
+  --wheel8: #70ff00;
+  --wheel9: #0051ff;
+  --wheel10: #ffea00;
+  --bg-gradient: linear-gradient(135deg, #0f172a, #3b0764, #1e3a8a, #0f172a);
+  --orb1: rgba(57,255,20,0.3);
+  --orb2: rgba(0,240,255,0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  background-size: 400% 400%;
+  animation: moveGradient 7s ease infinite;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  transition: color .4s ease;
+  position: relative;
+}
+@keyframes moveGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+body::before, body::after {
+  content: "";
+  position: absolute;
+  width: 380px; height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--orb1), transparent 70%);
+  z-index: -1;
+  animation: floatOrb 9s infinite alternate ease-in-out;
+  pointer-events: none;
+}
+body::after {
+  width: 480px; height: 480px;
+  right: -60px; bottom: 5vh;
+  background: radial-gradient(circle, var(--orb2), transparent 70%);
+  animation-duration: 11s;
+  animation-direction: alternate-reverse;
+}
+@keyframes floatOrb {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-90px) scale(1.18); }
+}
+
+button, select, input { font: inherit; }
+button { cursor: pointer; }
+.app { width: min(100%, 850px); margin: auto; padding: 16px; position: relative; z-index: 2; }
+header { text-align: center; padding: 18px 8px 12px; }
+.logo {
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: -2px;
+  text-shadow: 0 0 18px rgba(0,240,255,.35);
+}
+.tagline { color: var(--muted); margin-top: 5px; font-size: .95rem; }
+.badge-group { display: flex; gap: 8px; justify-content: center; align-items: center; margin-top: 10px; }
+.badge {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--card2);
+  color: var(--accent);
+  font-size: .75rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08);
+}
+.streak-badge {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+nav { display: flex; gap: 7px; margin: 15px 0; }
+.nav-btn {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 7px;
+  background: var(--card);
+  color: var(--muted);
+  font-weight: 800;
+  transition: all .2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.nav-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 16px rgba(0,240,255,.35);
+}
+.section { display: none; }
+.section.active { display: block; }
+.card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 22px;
+  padding: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 14px 35px rgba(0,0,0,.25);
+  transition: background .4s ease, border .4s ease, color .4s ease;
+}
+.card-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 5px; }
+.card-subtitle { color: var(--muted); font-size: .88rem; margin-bottom: 15px; }
+.hint { color: var(--accent); font-size: .78rem; font-weight: 800; margin: -6px 0 12px; }
+.quick-spin {
+  width: 100%;
+  border: 0;
+  border-radius: 15px;
+  padding: 14px;
+  margin-bottom: 15px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 1000;
+  font-size: 1rem;
+  box-shadow: 0 7px 0 rgba(0,0,0,.2);
+  transition: transform .1s ease, filter .2s ease;
+}
+.quick-spin:active { transform: translateY(4px); box-shadow: 0 3px 0 rgba(0,0,0,.2); }
+.choice-section { margin-bottom: 20px; }
+.choice-heading { font-size: 1rem; font-weight: 900; margin-bottom: 9px; }
+.choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.choice {
+  border: 2px solid transparent;
+  background: var(--card2);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: left;
+  transition: all .18s ease;
+  position: relative;
+}
+.choice:hover { transform: translateY(-2px); }
+.choice.selected {
+  border-color: var(--accent);
+  background: rgba(0,240,255,.2);
+  box-shadow: 0 0 0 2px rgba(0,240,255,.25);
+}
+.choice.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: .75rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+.choice-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+.choice-name { font-weight: 900; font-size: .86rem; }
+.choice-description { display: block; color: var(--muted); font-size: .7rem; margin-top: 3px; }
+.spin-main {
+  width: 100%;
+  border: 0;
+  border-radius: 17px;
+  padding: 17px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 1000;
+  box-shadow: 0 8px 0 rgba(0,0,0,.25);
+  transition: transform .1s ease;
+}
+.spin-main:active { transform: translateY(4px); box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+.spin-main:disabled, .quick-spin:disabled { opacity: .55; cursor: not-allowed; }
+.wheel-card { text-align: center; overflow: hidden; }
+.wheel-wrap {
+  width: min(88vw, 420px);
+  aspect-ratio: 1;
+  margin: 15px auto 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pointer {
+  position: absolute;
+  z-index: 10;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 17px solid transparent;
+  border-right: 17px solid transparent;
+  border-top: 37px solid var(--text);
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,.35));
+}
+.wheel {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 9px solid var(--text);
+  position: relative;
+  background: conic-gradient(
+    var(--wheel1) 0deg 36deg,
+    var(--wheel2) 36deg 72deg,
+    var(--wheel3) 72deg 108deg,
+    var(--wheel4) 108deg 144deg,
+    var(--wheel5) 144deg 180deg,
+    var(--wheel6) 180deg 216deg,
+    var(--wheel7) 216deg 252deg,
+    var(--wheel8) 252deg 288deg,
+    var(--wheel9) 288deg 324deg,
+    var(--wheel10) 324deg 360deg
+  );
+  box-shadow: 0 0 0 5px rgba(0,0,0,.2), 0 18px 35px rgba(0,0,0,.3);
+  transition: transform 3s cubic-bezier(.12,.72,.08,1);
+  transform: rotate(0deg);
+}
+.wheel::after {
+  content: "";
+  position: absolute;
+  inset: 9%;
+  border-radius: 50%;
+  border: 3px dashed rgba(255,255,255,.7);
+  pointer-events: none;
+}
+.wheel-label {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 75px;
+  margin-left: -37.5px;
+  margin-top: -11px;
+  text-align: center;
+  color: #13141f;
+  font-size: .68rem;
+  font-weight: 1000;
+  text-shadow: 0 1px rgba(255,255,255,.25);
+  pointer-events: none;
+}
+.center-spin {
+  position: absolute;
+  z-index: 5;
+  width: 85px; height: 85px;
+  border-radius: 50%;
+  border: 6px solid var(--text);
+  background: var(--bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .95rem;
+  font-weight: 1000;
+  box-shadow: 0 7px 15px rgba(0,0,0,.3);
+}
+.wheel-status { color: var(--muted); min-height: 22px; font-size: .85rem; font-weight: 700; margin-top: 8px; }
+.result { display: none; text-align: center; animation: pop .45s ease; }
+.result.show { display: block; }
+.result-eyebrow {
+  color: var(--accent);
+  font-size: .8rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.result-character { font-size: 5rem; margin: 10px; animation: bob 1.8s ease-in-out infinite; }
+.result-title { font-size: clamp(1.5rem, 6vw, 2.2rem); font-weight: 1000; margin: 5px 0 8px; }
+.result-desc { color: var(--muted); line-height: 1.5; max-width: 600px; margin: auto; }
+.result-category {
+  display: inline-block;
+  margin-top: 13px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: var(--card2);
+  color: var(--accent3);
+  font-weight: 900;
+  font-size: .75rem;
+}
+.reel-box {
+  background: var(--card2);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px dashed rgba(255,255,255,.25);
+}
+.reel-icon { font-size: 2rem; }
+.reel-info { flex: 1; }
+.reel-label-small { font-size: .7rem; font-weight: 900; color: var(--accent2); text-transform: uppercase; letter-spacing: .5px; }
+.reel-title { font-size: .9rem; font-weight: 900; margin-top: 2px; }
+.reel-btn {
+  background: var(--accent);
+  color: var(--bg);
+  border: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: .78rem;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,.2);
+}
+.result-buttons { display: flex; gap: 9px; margin-top: 17px; }
+.result-buttons button { flex: 1; border: 0; border-radius: 13px; padding: 12px; font-weight: 900; }
+.again { background: var(--accent); color: #13141f; }
+.save { background: var(--card2); color: var(--text); }
+.save.saved { background: var(--accent3); color: #13141f; }
+.saved-empty { text-align: center; color: var(--muted); padding: 35px 10px; }
+.saved-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 13px;
+  background: var(--card2);
+  border-radius: 15px;
+  margin-bottom: 8px;
+}
+.saved-emoji { font-size: 2rem; }
+.saved-info { flex: 1; }
+.saved-title { font-weight: 900; }
+.saved-desc { color: var(--muted); font-size: .78rem; margin-top: 3px; }
+.delete-save { border: 0; background: transparent; color: var(--danger); font-size: 1.2rem; }
+.about-list { padding-left: 20px; color: var(--muted); line-height: 1.7; }
+.about-list strong { color: var(--text); }
+
+.theme-toggle {
+  position: fixed;
+  right: 15px; bottom: 15px;
+  z-index: 50;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.35);
+  background: var(--accent);
+  color: #13141f;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 25px rgba(0,0,0,.35);
+  transition: transform .2s ease;
+}
+.theme-toggle:hover { transform: scale(1.08); }
+.theme-panel {
+  display: none;
+  position: fixed;
+  z-index: 49;
+  right: 15px; bottom: 82px;
+  width: min(310px, calc(100vw - 30px));
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,.25);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 15px 45px rgba(0,0,0,.35);
+}
+.theme-panel.open { display: block; animation: pop .22s ease; }
+.theme-panel h3 { margin: 3px 4px 12px; font-size: 1rem; }
+.theme-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.theme-btn {
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 11px 8px;
+  background: var(--card2);
+  color: var(--text);
+  font-size: .8rem;
+  font-weight: 800;
+  text-align: left;
+  transition: transform .15s ease;
+}
+.theme-btn:hover { transform: translateY(-2px); }
+.theme-btn.active-theme {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0,240,255,.3);
+  background: rgba(0,240,255,.2);
+}
+.confetti {
+  position: fixed;
+  z-index: 100;
+  width: 9px; height: 15px;
+  pointer-events: none;
+  animation: fall 1.8s linear forwards;
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bob {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-9px) rotate(3deg); }
+}
+@keyframes fall {
+  from { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+  to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+body.theme-rainbow .choice-section:nth-of-type(1) .choice-heading { color: #ff0055; text-shadow: 0 0 10px rgba(255,0,85,0.4); }
+body.theme-rainbow .choice-section:nth-of-type(2) .choice-heading { color: #ffaa00; text-shadow: 0 0 10px rgba(255,170,0,0.4); }
+body.theme-rainbow .choice-section:nth-of-type(3) .choice-heading { color: #00ff66; text-shadow: 0 0 10px rgba(0,255,102,0.4); }
+
+body.theme-rainbow .choice[data-group="brain"]:nth-child(1) { background: rgba(255, 0, 85, 0.25); border-color: #ff0055; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(2) { background: rgba(255, 128, 0, 0.25); border-color: #ff8000; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(3) { background: rgba(255, 230, 0, 0.25); border-color: #ffe600; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(4) { background: rgba(0, 230, 115, 0.25); border-color: #00e673; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(5) { background: rgba(0, 204, 255, 0.25); border-color: #00ccff; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(6) { background: rgba(0, 102, 255, 0.25); border-color: #0066ff; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(7) { background: rgba(153, 0, 255, 0.25); border-color: #9900ff; }
+body.theme-rainbow .choice[data-group="brain"]:nth-child(8) { background: rgba(255, 0, 204, 0.25); border-color: #ff00cc; }
+
+body.theme-rainbow .choice[data-group="situation"]:nth-child(odd) { background: rgba(0, 240, 255, 0.2); border-color: #00f0ff; }
+body.theme-rainbow .choice[data-group="situation"]:nth-child(even) { background: rgba(255, 0, 170, 0.2); border-color: #ff00aa; }
+
+@media (min-width: 600px) {
+  .choice-grid { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">🎡 Boredom Roulette</div>
+  <div class="tagline">Because staring at the wall isn't an activity.</div>
+  <div class="badge-group">
+    <div class="badge">SPIN YOUR WAY OUT</div>
+    <div class="badge streak-badge" id="streakBadge">🔥 0 SPINS</div>
+  </div>
+</header>
+<nav>
+  <button class="nav-btn active" onclick="showSection('roulette', this)">🎡 Roulette</button>
+  <button class="nav-btn" onclick="showSection('saved', this)">⭐ Saved</button>
+  <button class="nav-btn" onclick="showSection('about', this)">ℹ️ About</button>
+</nav>
+
+<section id="roulette" class="section active">
+<button class="quick-spin" onclick="quickSpin()">⚡ I DON'T WANNA THINK — JUST SPIN</button>
+
+<div class="card">
+  <div class="card-title">Let's figure out your boredom.</div>
+  <div class="card-subtitle">Pick what fits right now. You can select multiple options in each group.</div>
+  <div class="hint">Tip: tap again to deselect. At least one option per group stays selected.</div>
+
+  <div class="choice-section">
+    <div class="choice-heading">🧠 How's your brain?</div>
+    <div class="choice-grid">
+      <button class="choice selected" data-group="brain" data-value="bored" onclick="selectChoice(this)">
+        <span class="choice-icon">🥱</span><span class="choice-name">Bored</span><span class="choice-description">Need something</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="stim" onclick="selectChoice(this)">
+        <span class="choice-icon">⚡</span><span class="choice-name">Stim</span><span class="choice-description">Give me MORE</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="chill" onclick="selectChoice(this)">
+        <span class="choice-icon">😌</span><span class="choice-name">Chill</span><span class="choice-description">Low pressure</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="creative" onclick="selectChoice(this)">
+        <span class="choice-icon">🎨</span><span class="choice-name">Creative</span><span class="choice-description">Make something</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="curious" onclick="selectChoice(this)">
+        <span class="choice-icon">🧠</span><span class="choice-name">Curious</span><span class="choice-description">Teach me</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="nostalgic" onclick="selectChoice(this)">
+        <span class="choice-icon">🥹</span><span class="choice-name">Nostalgic</span><span class="choice-description">Take me back</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="social" onclick="selectChoice(this)">
+        <span class="choice-icon">🗣️</span><span class="choice-name">Social</span><span class="choice-description">People!</span>
+      </button>
+      <button class="choice" data-group="brain" data-value="frustrated" onclick="selectChoice(this)">
+        <span class="choice-icon">😤</span><span class="choice-name">Frustrated</span><span class="choice-description">Burn it off</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="choice-section">
+    <div class="choice-heading">📍 What's your situation?</div>
+    <div class="choice-grid">
+      <button class="choice selected" data-group="situation" data-value="phone" onclick="selectChoice(this)">
+        <span class="choice-icon">📱</span><span class="choice-name">Phone</span><span class="choice-description">Phone only</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="inside" onclick="selectChoice(this)">
+        <span class="choice-icon">🏠</span><span class="choice-name">Inside</span><span class="choice-description">Home base</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="outside" onclick="selectChoice(this)">
+        <span class="choice-icon">🌳</span><span class="choice-name">Outside</span><span class="choice-description">Fresh air</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="alone" onclick="selectChoice(this)">
+        <span class="choice-icon">👤</span><span class="choice-name">Alone</span><span class="choice-description">Just me</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="people" onclick="selectChoice(this)">
+        <span class="choice-icon">👥</span><span class="choice-name">People</span><span class="choice-description">Not alone</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="broke" onclick="selectChoice(this)">
+        <span class="choice-icon">💸</span><span class="choice-name">Broke</span><span class="choice-description">$0 required</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="lowEnergy" onclick="selectChoice(this)">
+        <span class="choice-icon">🪫</span><span class="choice-name">Low Energy</span><span class="choice-description">Bare minimum</span>
+      </button>
+      <button class="choice" data-group="situation" data-value="fiveMinutes" onclick="selectChoice(this)">
+        <span class="choice-icon">⏱️</span><span class="choice-name">5 Minutes</span><span class="choice-description">Quick hit</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="choice-section">
+    <div class="choice-heading">🎯 What sounds good?</div>
+    <div class="choice-grid">
+      <button class="choice" data-group="category" data-value="create" onclick="selectChoice(this)">
+        <span class="choice-icon">🎨</span><span class="choice-name">Create</span><span class="choice-description">Make stuff</span>
+      </button>
+      <button class="choice" data-group="category" data-value="laugh" onclick="selectChoice(this)">
+        <span class="choice-icon">😂</span><span class="choice-name">Laugh</span><span class="choice-description">Be ridiculous</span>
+      </button>
+      <button class="choice" data-group="category" data-value="music" onclick="selectChoice(this)">
+        <span class="choice-icon">🎵</span><span class="choice-name">Music</span><span class="choice-description">Soundtrack me</span>
+      </button>
+      <button class="choice" data-group="category" data-value="watch" onclick="selectChoice(this)">
+        <span class="choice-icon">📺</span><span class="choice-name">Watch</span><span class="choice-description">Put something on</span>
+      </button>
+      <button class="choice" data-group="category" data-value="learn" onclick="selectChoice(this)">
+        <span class="choice-icon">🧠</span><span class="choice-name">Learn</span><span class="choice-description">Rabbit hole</span>
+      </button>
+      <button class="choice" data-group="category" data-value="play" onclick="selectChoice(this)">
+        <span class="choice-icon">🎮</span><span class="choice-name">Play</span><span class="choice-description">Game time</span>
+      </button>
+      <button class="choice" data-group="category" data-value="nostalgia" onclick="selectChoice(this)">
+        <span class="choice-icon">🕰️</span><span class="choice-name">Nostalgia</span><span class="choice-description">Take me back</span>
+      </button>
+      <button class="choice" data-group="category" data-value="social" onclick="selectChoice(this)">
+        <span class="choice-icon">🗣️</span><span class="choice-name">Social</span><span class="choice-description">Interact</span>
+      </button>
+      <button class="choice" data-group="category" data-value="chaos" onclick="selectChoice(this)">
+        <span class="choice-icon">💥</span><span class="choice-name">Chaos</span><span class="choice-description">Surprise me</span>
+      </button>
+      <button class="choice selected" data-group="category" data-value="any" onclick="selectChoice(this)">
+        <span class="choice-icon">🎲</span><span class="choice-name">Anything</span><span class="choice-description">Dealer's choice</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="spin-main" id="spinButton" onclick="spinRoulette(false)">🎡 SPIN THE WHEEL</button>
+</div>
+
+<div class="card wheel-card">
+  <div class="card-title">🎡 The Wheel</div>
+  <div class="card-subtitle">Your boredom is about to get a lot less boring.</div>
+  <div class="wheel-wrap">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel">
+      <div class="wheel-label" style="transform:translateY(-125px)">🎨 CREATE</div>
+      <div class="wheel-label" style="transform:translate(75px,-100px)">😂 LAUGH</div>
+      <div class="wheel-label" style="transform:translate(112px,-15px)">🎵 MUSIC</div>
+      <div class="wheel-label" style="transform:translate(75px,75px)">📺 WATCH</div>
+      <div class="wheel-label" style="transform:translate(-5px,112px)">🧠 LEARN</div>
+      <div class="wheel-label" style="transform:translate(-85px,75px)">🎮 PLAY</div>
+      <div class="wheel-label" style="transform:translate(-122px,-15px)">🕰️ NOSTALGIA</div>
+      <div class="wheel-label" style="transform:translate(-90px,-100px)">🗣️ SOCIAL</div>
+      <div class="wheel-label" style="transform:translate(-5px,-140px)">💥 CHAOS</div>
+      <div class="wheel-label" style="transform:translate(5px,-55px)">❓ MYSTERY</div>
+    </div>
+    <div class="center-spin">SPIN!</div>
+  </div>
+  <div class="wheel-status" id="wheelStatus">Ready when you are...</div>
+</div>
+
+<div class="card result" id="result">
+  <div class="result-eyebrow">🎰 THE WHEEL HAS SPOKEN</div>
+  <div class="result-character" id="resultCharacter">🎨</div>
+  <div class="result-title" id="resultTitle">Your activity</div>
+  <div class="result-desc" id="resultDesc">Something fun is waiting.</div>
+  <div class="result-category" id="resultCategory">CREATE</div>
+
+  <div class="reel-box" id="reelBox">
+    <div class="reel-icon" id="reelIcon">🎬</div>
+    <div class="reel-info">
+      <div class="reel-label-small">Recommended Reel / Short</div>
+      <div class="reel-title" id="reelTitleText">Funny animal fails compilation</div>
+    </div>
+    <a href="#" id="reelLinkBtn" target="_blank" class="reel-btn">Watch ↗</a>
+  </div>
+
+  <div class="result-buttons">
+    <button class="again" onclick="spinRoulette(false)">🎲 Again</button>
+    <button class="save" id="saveButton" onclick="saveCurrent()">⭐ Save</button>
+  </div>
+</div>
+</section>
+
+<section id="saved" class="section">
+  <div class="card">
+    <div class="card-title">⭐ Saved Activities</div>
+    <div class="card-subtitle">Your personal collection of things to do when your brain says “I dunno.”</div>
+    <div id="savedList"></div>
+  </div>
+</section>
+
+<section id="about" class="section">
+  <div class="card">
+    <div class="card-title">🎡 About Boredom Roulette</div>
+    <div class="card-subtitle">A tiny activity engine for brains that refuse to pick something.</div>
+    <ul class="about-list">
+      <li><strong>The app chooses ONE thing.</strong> No giant list of homework.</li>
+      <li>Your brain state helps narrow the possibilities.</li>
+      <li>Your situation keeps suggestions realistic.</li>
+      <li><strong>Reel pairing:</strong> Every spin instantly pairs with a matching trending reel or video topic!</li>
+      <li>Saved activities stay on your device using localStorage.</li>
+      <li>Try different themes using the 🎨 button in the bottom right!</li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<button class="theme-toggle" onclick="toggleThemePanel()" title="Change Theme">🎨</button>
+<div class="theme-panel" id="themePanel">
+  <h3>🎨 Pick a Vibe</h3>
+  <div class="theme-grid">
+    <button class="theme-btn" data-theme="arcade" onclick="setTheme('arcade')">⚡ Cyber Arcade</button>
+    <button class="theme-btn" data-theme="pastel" onclick="setTheme('pastel')">🌸 Sunshine Pastel</button>
+    <button class="theme-btn" data-theme="rainbow" onclick="setTheme('rainbow')">🌈 Rainbow Blast</button>
+    <button class="theme-btn" data-theme="lightday" onclick="setTheme('lightday')">☀️ Day Sky (Light)</button>
+    <button class="theme-btn" data-theme="voltage" onclick="setTheme('voltage')">🔥 Neon Voltage</button>
+    <button class="theme-btn" data-theme="midnight" onclick="setTheme('midnight')">🖤 Deep Space</button>
+  </div>
+</div>
+
+<script>
+let selected = { brain: ["bored"], situation: ["phone"], category: ["any"] };
+let currentActivity = null;
+let currentRotation = 0;
+let spinning = false;
+let saved = JSON.parse(localStorage.getItem("boredomRouletteSaved") || "[]");
+let streak = Number(localStorage.getItem("boredomRouletteStreak") || "0");
+
+const activities = [
+  { id: "bad-drawing", title: "Make the Worst Drawing Possible", emoji: "🎨", desc: "Set a 3-minute timer and intentionally create the ugliest masterpiece you can. Give it a dramatic title.", brain: ["bored","stim","creative","frustrated"], situation: ["phone","inside","alone","broke","fiveMinutes"], categories: ["create","chaos"], character: "🎨" },
+  { id: "fake-product", title: "Invent a Completely Useless Product", emoji: "💡", desc: "Invent something nobody needs. Give it a ridiculous name, slogan, and fake commercial.", brain: ["bored","creative","stim"], situation: ["phone","inside","alone","people","broke"], categories: ["create","laugh","chaos"], character: "💡" },
+  { id: "three-shapes", title: "Draw Something Using Only Three Shapes", emoji: "🔺", desc: "Pick three shapes and build an entire drawing using nothing else.", brain: ["creative","chill"], situation: ["phone","inside","alone","broke","fiveMinutes"], categories: ["create","play"], character: "🎨" },
+  { id: "bad-joke", title: "Invent the Worst Joke You Can", emoji: "😂", desc: "Your mission is not to be funny. Your mission is to be impressively terrible.", brain: ["bored","stim","frustrated","social"], situation: ["phone","inside","alone","people","broke","fiveMinutes"], categories: ["laugh","social","chaos"], character: "😂" },
+  { id: "news-bloopers", title: "Watch Live News Bloopers", emoji: "📺", desc: "Find a compilation of news anchors losing their professional composure.", brain: ["bored","chill","stim"], situation: ["phone","inside","alone","people"], categories: ["watch","laugh"], character: "📺" },
+  { id: "super-friends", title: "Take a Trip Back to Super Friends", emoji: "🦸", desc: "Put on an episode of Super Friends and let your brain time-travel to Saturday morning.", brain: ["nostalgic","chill","bored"], situation: ["phone","inside","alone","people"], categories: ["watch","nostalgia"], character: "🦸" },
+  { id: "scooby", title: "Watch Some Classic Scooby-Doo", emoji: "🐕", desc: "Mystery, snacks, questionable disguises, and one dog who deserves better.", brain: ["nostalgic","chill","bored"], situation: ["phone","inside","alone","people"], categories: ["watch","nostalgia"], character: "🐕" },
+  { id: "bluey", title: "Watch an Episode of Bluey", emoji: "🐶", desc: "Pick an episode and let Bluey handle the emotional damage.", brain: ["chill","nostalgic","bored"], situation: ["phone","inside","alone","people"], categories: ["watch","nostalgia"], character: "🐶" },
+  { id: "mickey", title: "Go Watch Some Mickey Mouse", emoji: "🐭", desc: "Throw on some Mickey and enjoy some classic cartoon chaos.", brain: ["chill","nostalgic","bored"], situation: ["phone","inside","alone","people"], categories: ["watch","nostalgia"], character: "🐭" },
+  { id: "random-music", title: "Put Your Music on Shuffle", emoji: "🎵", desc: "Hit shuffle and commit to the first three songs. No skipping.", brain: ["bored","stim","chill","frustrated"], situation: ["phone","inside","outside","alone","people"], categories: ["music","play"], character: "🎧" },
+  { id: "music-time-machine", title: "Music Time Machine", emoji: "⏰", desc: "Pick a random year from your childhood or teenage years and listen to music from that year.", brain: ["nostalgic","curious","chill"], situation: ["phone","inside","outside","alone","people"], categories: ["music","nostalgia","learn"], character: "⏰" },
+  { id: "angry-music", title: "Turn Up the Angry Music", emoji: "😤", desc: "Put on the loudest acceptable angry song you know and let your brain burn off some static.", brain: ["frustrated","stim"], situation: ["phone","inside","outside","alone"], categories: ["music","chaos"], character: "😤" },
+  { id: "fairy-tail", title: "Enter the Fairy Tail Universe", emoji: "🐉", desc: "Watch an episode, listen to the soundtrack, or fall down a Fairy Tail rabbit hole.", brain: ["bored","stim","nostalgic","curious"], situation: ["phone","inside","alone","people"], categories: ["watch","nostalgia","learn"], character: "🐉" },
+  { id: "pop-demon-hunters", title: "Put on Some Pop Demon Hunters", emoji: "🎤", desc: "Pick an episode, song, clip, or soundtrack and enter maximum pop-demon energy.", brain: ["stim","chill","bored"], situation: ["phone","inside","alone","people"], categories: ["watch","music","play"], character: "🎤" },
+  { id: "wiki-rabbit-hole", title: "Fall Down a Wikipedia Rabbit Hole", emoji: "🐇", desc: "Pick the weirdest topic you can think of and follow links until you have absolutely no idea how you got there.", brain: ["curious","bored","stim"], situation: ["phone","inside","alone","fiveMinutes"], categories: ["learn","chaos"], character: "🐇" },
+  { id: "tiny-reset", title: "Reset One Tiny Part of Your Space", emoji: "🧹", desc: "Choose exactly ONE tiny area. Five minutes. Then stop. This is not a cleaning marathon.", brain: ["frustrated","chill","bored"], situation: ["inside","alone","broke","fiveMinutes","lowEnergy"], categories: ["create","play"], character: "🧹" },
+  { id: "question-game", title: "Ask Someone a Completely Random Question", emoji: "❓", desc: "Ask someone: If you could instantly master one completely useless skill, what would it be?", brain: ["social","bored","curious"], situation: ["phone","people"], categories: ["social","laugh"], character: "❓" },
+  { id: "three-minute-story", title: "Write a Three-Minute Story", emoji: "📖", desc: "Start with: 'The package definitely wasn't supposed to be breathing.' Then write for three minutes.", brain: ["creative","curious"], situation: ["phone","inside","alone","broke","fiveMinutes"], categories: ["create","chaos"], character: "📖" },
+  { id: "fake-review", title: "Write a Fake Review for an Object", emoji: "⭐", desc: "Review something near you as if it were a product you bought online.", brain: ["creative","laugh","bored"], situation: ["inside","alone","phone","broke","fiveMinutes"], categories: ["create","laugh","chaos"], character: "⭐" },
+  { id: "emoji-movie", title: "Describe a Movie Using Only Emojis", emoji: "🎬", desc: "Pick a movie and describe the entire plot using emojis. Make someone guess it.", brain: ["social","creative","laugh"], situation: ["phone","people","alone"], categories: ["play","social","laugh"], character: "🎬" },
+  { id: "random-challenge", title: "Do a Completely Random Five-Minute Challenge", emoji: "🎲", desc: "Set a five-minute timer and do whatever weird harmless challenge your brain invents.", brain: ["bored","stim","creative"], situation: ["phone","inside","outside","alone","people","broke","fiveMinutes"], categories: ["chaos","play"], character: "🎲" },
+  { id: "color-hunt", title: "The 3-Item Color Hunt", emoji: "🔍", desc: "Look around you and find 3 items of the exact same shade of blue or green right now.", brain: ["bored","stim","chill"], situation: ["inside","outside","alone","fiveMinutes","lowEnergy"], categories: ["play","chaos"], character: "🔍" },
+  { id: "reverse-todo", title: "Make a Reverse To-Do List", emoji: "📝", desc: "Write down 5 things you've ALREADY done today (even 'opened eyes'). Cross them off for dopamine.", brain: ["chill","frustrated","lowEnergy"], situation: ["phone","inside","alone","fiveMinutes"], categories: ["create","play"], character: "📝" },
+  { id: "sound-scavenger", title: "Sound Scavenger Hunt", emoji: "🎧", desc: "Close your eyes for 30 seconds. Identify 4 distinct sounds happening around you right now.", brain: ["chill","curious"], situation: ["inside","outside","alone","fiveMinutes","lowEnergy"], categories: ["learn","play"], character: "🎧" },
+  { id: "wiki-race", title: "Speed Wikipedia Race", emoji: "⚡", desc: "Go to Wikipedia. Click 'Random Article'. Try to reach 'Banana' or 'Moon' in under 5 clicks.", brain: ["stim","curious","bored"], situation: ["phone","inside","alone","fiveMinutes"], categories: ["play","learn"], character: "⚡" },
+  { id: "fake-accent", title: "Read News in a Terrible Accent", emoji: "🗣️", desc: "Open any news article or post and read out loud in the worst British or Pirate accent you can.", brain: ["laugh","creative","stim"], situation: ["phone","inside","alone","fiveMinutes"], categories: ["laugh","chaos"], character: "🗣️" },
+  { id: "desk-origami", title: "Accidental Origami", emoji: "📄", desc: "Grab a receipt or scrap paper and try folding a paper crane or boat without looking up instructions.", brain: ["creative","bored","frustrated"], situation: ["inside","alone","broke","fiveMinutes"], categories: ["create","play"], character: "📄" },
+  { id: "sky-view", title: "Observe Cloud Shapes for 2 Minutes", emoji: "☁️", desc: "Look out the window or step outside. Find at least 2 clouds that look like recognizable creatures.", brain: ["chill","nostalgic"], situation: ["outside","inside","alone","fiveMinutes","lowEnergy"], categories: ["play","chill"], character: "☁️" },
+  { id: "micro-journal", title: "6-Word Life Update", emoji: "✍️", desc: "Summarize your entire week or current vibe in EXACTLY six words. No more, no less.", brain: ["creative","curious","chill"], situation: ["phone","inside","alone","fiveMinutes"], categories: ["create","learn"], character: "✍️" }
+];
+
+const generators = {
+  create: [
+    ["Draw your dream room without worrying about realism.", "🎨"],
+    ["Design a ridiculous superhero costume.", "🦸"],
+    ["Invent a fictional restaurant menu.", "🍔"],
+    ["Make a tiny comic with exactly four panels.", "💥"],
+    ["Create a new Pokémon that should absolutely not exist.", "🐉"],
+    ["Design an app nobody asked for.", "📱"],
+    ["Draw an animal as a medieval knight.", "⚔️"],
+    ["Write a dramatic movie trailer for your day.", "🎬"]
+  ],
+  laugh: [
+    ["Make the worst pun you can.", "😂"],
+    ["Narrate what you're doing like a nature documentary.", "🎙️"],
+    ["Give an object near you a ridiculous backstory.", "📖"],
+    ["Search for the weirdest animal fact you can find.", "🐙"],
+    ["Make up a fake commercial for your socks.", "📺"],
+    ["Try to make someone laugh using only one sentence.", "🤣"]
+  ],
+  music: [
+    ["Hit shuffle and commit to the first song.", "🎵"],
+    ["Listen to a song you loved years ago.", "⏰"],
+    ["Make a three-song mini playlist.", "🎧"],
+    ["Find a song from a completely different country.", "🌎"],
+    ["Listen to a soundtrack without watching the movie.", "🎬"],
+    ["Pick a random year and explore its music.", "📻"]
+  ],
+  watch: [
+    ["Watch a classic cartoon.", "📺"],
+    ["Find a ridiculous internet compilation.", "😂"],
+    ["Watch one episode of a show you haven't seen.", "🎬"],
+    ["Watch a movie trailer from 20 years ago.", "🎞️"],
+    ["Watch something completely outside your normal taste.", "👀"],
+    ["Find a short animated film.", "✨"]
+  ],
+  learn: [
+    ["Learn why something in your room works.", "🧠"],
+    ["Look up a weird historical event.", "📜"],
+    ["Learn three facts about an animal.", "🐙"],
+    ["Explore a random Wikipedia page.", "🐇"],
+    ["Learn how something common is manufactured.", "🏭"],
+    ["Find out where a familiar phrase came from.", "📚"]
+  ],
+  play: [
+    ["Play a game you haven't touched in months.", "🎮"],
+    ["Make up a game using only objects nearby.", "🎲"],
+    ["Play a quick puzzle game.", "🧩"],
+    ["Try to beat your own high score.", "🏆"],
+    ["Play something deliberately badly.", "😂"]
+  ],
+  nostalgia: [
+    ["Listen to music from your childhood.", "🎵"],
+    ["Watch an old cartoon.", "📺"],
+    ["Look up toys from the year you were a kid.", "🧸"],
+    ["Find an old movie trailer.", "🎬"],
+    ["Search for commercials from your childhood era.", "📼"],
+    ["Think of your favorite childhood snack and recreate it.", "🍿"]
+  ],
+  social: [
+    ["Send someone a completely random meme.", "😂"],
+    ["Ask someone a ridiculous hypothetical question.", "❓"],
+    ["Call someone you haven't talked to lately.", "📞"],
+    ["Start a group chat debate over something meaningless.", "🔥"],
+    ["Ask someone what their current obsession is.", "🧠"]
+  ],
+  chaos: [
+    ["Let a random number generator decide what you do next.", "🎲"],
+    ["Draw with your non-dominant hand.", "✋"],
+    ["Make up a fake conspiracy about your house.", "🕵️"],
+    ["Set a timer for three minutes and speed-clean one tiny area.", "🧹"],
+    ["Pick a random object and invent five uses for it.", "💡"],
+    ["Do something harmless that you normally consider 'too weird.'", "💥"]
+  ]
+};
+
+const reelsData = {
+  create: { title: "Satisfying art & DIY transformation shorts", query: "satisfying art shorts DIY" },
+  laugh: { title: "Try Not to Laugh challenge compilations", query: "try not to laugh challenge funny shorts" },
+  music: { title: "Viral song mashups & hidden gem tracks", query: "viral mashup trending music shorts" },
+  watch: { title: "Bizarre internet rabbit hole deep dives", query: "weird internet history short documentary" },
+  learn: { title: "Mind-blowing psychology & science facts", query: "mind blowing psychology facts shorts" },
+  play: { title: "Insane mobile gaming speedruns & tricks", query: "gaming speedrun satisfying shorts" },
+  nostalgia: { title: "2000s cartoon intros & childhood memories", query: "2000s childhood nostalgia compilation shorts" },
+  social: { title: "Awkward public interviews & social experiments", query: "funny public interview street shorts" },
+  chaos: { title: "Absolute unpredictable internet chaos", query: "funny absurd meme shorts compilation" },
+  default: { title: "Trending viral shorts & reels right now", query: "trending viral shorts compilation" }
+};
+
+function getReelForCategory(category) {
+  const match = reelsData[category] || reelsData.default;
+  return {
+    title: match.title,
+    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(match.query)}`
+  };
+}
+
+function selectChoice(button) {
+  const group = button.dataset.group;
+  const value = button.dataset.value;
+  const isSelected = button.classList.contains("selected");
+  const current = selected[group];
+  if (isSelected) {
+    if (current.length <= 1) return;
+    button.classList.remove("selected");
+    selected[group] = current.filter(v => v !== value);
+  } else {
+    button.classList.add("selected");
+    selected[group] = [...current, value];
+  }
+  if (group === "category") {
+    if (value === "any" && selected.category.includes("any")) {
+      selected.category = ["any"];
+      document.querySelectorAll('.choice[data-group="category"]').forEach(btn => {
+        btn.classList.toggle("selected", btn.dataset.value === "any");
+      });
+    } else if (value !== "any" && selected.category.includes("any")) {
+      selected.category = selected.category.filter(v => v !== "any");
+      document.querySelectorAll('.choice[data-group="category"][data-value="any"]').forEach(btn => {
+        btn.classList.remove("selected");
+      });
+    }
+  }
+}
+
+function getEligibleActivities(ignoreFilters = false) {
+  if (ignoreFilters) return [...activities];
+  const brains = selected.brain;
+  const situations = selected.situation;
+  const categories = selected.category;
+  let results = activities.filter(activity => {
+    const brainMatch = brains.some(b => activity.brain.includes(b));
+    const situationMatch = situations.some(s => activity.situation.includes(s));
+    const categoryMatch = categories.includes("any") || categories.some(c => activity.categories.includes(c));
+    return brainMatch && situationMatch && categoryMatch;
+  });
+  if (results.length === 0) {
+    results = activities.filter(activity => {
+      return categories.includes("any") || categories.some(c => activity.categories.includes(c));
+    });
+  }
+  if (results.length === 0) {
+    results = activities.filter(activity => brains.some(b => activity.brain.includes(b)));
+  }
+  if (results.length === 0) results = [...activities];
+  return results;
+}
+
+function createGeneratorActivity(category) {
+  const list = generators[category];
+  if (!list || !list.length) return null;
+  const item = list[Math.floor(Math.random() * list.length)];
+  return { id: "generator-" + Date.now(), title: item[0], emoji: item[1], desc: "This one came straight from the activity generator.", categories: [category], character: item[1] };
+}
+
+function chooseActivity(ignoreFilters = false) {
+  const eligible = getEligibleActivities(ignoreFilters);
+  const cats = selected.category.filter(c => c !== "any");
+  if (!ignoreFilters && cats.length > 0 && Math.random() < 0.28) {
+    const pick = cats[Math.floor(Math.random() * cats.length)];
+    if (generators[pick]) return createGeneratorActivity(pick);
+  }
+  return eligible[Math.floor(Math.random() * eligible.length)];
+}
+
+const wheelCategories = ["create","laugh","music","watch","learn","play","nostalgia","social","chaos","mystery"];
+
+function getWheelCategory(activity) {
+  const cats = selected.category.filter(c => c !== "any" && c !== "chaos");
+  if (cats.length > 0) return cats[Math.floor(Math.random() * cats.length)];
+  if (activity.categories && activity.categories.length) {
+    const usable = activity.categories.filter(cat => wheelCategories.includes(cat));
+    if (usable.length) return usable[Math.floor(Math.random() * usable.length)];
+  }
+  return wheelCategories[Math.floor(Math.random() * wheelCategories.length)];
+}
+
+function spinWheelTo(category) {
+  const index = wheelCategories.indexOf(category);
+  const slice = 36;
+  const targetCenter = index * slice + slice / 2;
+  const extraSpins = 360 * (4 + Math.floor(Math.random() * 2));
+  const target = extraSpins + (360 - targetCenter);
+  currentRotation += target;
+  document.getElementById("wheel").style.transform = `rotate(${currentRotation}deg)`;
+}
+
+function spinRoulette(quick = false) {
+  if (spinning) return;
+  spinning = true;
+  const button = document.getElementById("spinButton");
+  const status = document.getElementById("wheelStatus");
+  const result = document.getElementById("result");
+  result.classList.remove("show");
+  if (button) button.disabled = true;
+  
+  const activity = chooseActivity(quick);
+  currentActivity = activity;
+  let category = getWheelCategory(activity);
+  if (!quick && selected.category.includes("any") && Math.random() < .10) category = "mystery";
+  status.textContent = "🎡 The wheel is deciding your fate...";
+  
+  spinWheelTo(category);
+  
+  setTimeout(() => {
+    showResult(activity, category);
+    spinning = false;
+    if (button) button.disabled = false;
+    status.textContent = `It landed on ${category.toUpperCase()}!`;
+    streak++;
+    localStorage.setItem("boredomRouletteStreak", streak);
+    updateStreakDisplay();
+    confetti();
+  }, 3100);
+}
+
+function quickSpin() { spinRoulette(true); }
+
+function showResult(activity, category) {
+  const result = document.getElementById("result");
+  document.getElementById("resultCharacter").textContent = activity.character || activity.emoji || "🎲";
+  document.getElementById("resultTitle").textContent = activity.title;
+  document.getElementById("resultDesc").textContent = activity.desc;
+  document.getElementById("resultCategory").textContent = category.toUpperCase();
+  
+  const reel = getReelForCategory(category);
+  document.getElementById("reelTitleText").textContent = reel.title;
+  document.getElementById("reelLinkBtn").href = reel.url;
+  
+  result.classList.add("show");
+  updateSaveButton();
+  
+  setTimeout(() => {
+    result.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+}
+
+function saveCurrent() {
+  if (!currentActivity) return;
+  const exists = saved.some(item => item.id === currentActivity.id);
+  if (!exists) {
+    saved.push(currentActivity);
+  } else {
+    saved = saved.filter(item => item.id !== currentActivity.id);
+  }
+  localStorage.setItem("boredomRouletteSaved", JSON.stringify(saved));
+  updateSaveButton();
+  renderSaved();
+}
+
+function updateSaveButton() {
+  const button = document.getElementById("saveButton");
+  if (!currentActivity || !button) return;
+  const exists = saved.some(item => item.id === currentActivity.id);
+  button.classList.toggle("saved", exists);
+  button.textContent = exists ? "⭐ Saved" : "⭐ Save";
+}
+
+function renderSaved() {
+  const container = document.getElementById("savedList");
+  if (!container) return;
+  if (!saved.length) {
+    container.innerHTML = `<div class="saved-empty">⭐ Nothing saved yet.<br><br>Spin the wheel and save the activities you actually want to do.</div>`;
+    return;
+  }
+  container.innerHTML = saved.map((item, index) => `
+    <div class="saved-item">
+      <div class="saved-emoji">${item.emoji || item.character || "🎲"}</div>
+      <div class="saved-info">
+        <div class="saved-title">${escapeHTML(item.title)}</div>
+        <div class="saved-desc">${escapeHTML(item.desc)}</div>
+      </div>
+      <button class="delete-save" onclick="deleteSaved(${index})" title="Remove">✕</button>
+    </div>
+  `).join("");
+}
+
+function deleteSaved(index) {
+  saved.splice(index, 1);
+  localStorage.setItem("boredomRouletteSaved", JSON.stringify(saved));
+  renderSaved();
+  updateSaveButton();
+}
+
+function showSection(id, button) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  button.classList.add("active");
+  if (id === "saved") renderSaved();
+}
+
+function updateStreakDisplay() {
+  const badge = document.getElementById("streakBadge");
+  if (badge) badge.textContent = `🔥 ${streak} SPINS`;
+}
+
+const themes = {
+  arcade: {
+    name: "arcade",
+    bg: "#13141f", bg2: "#1b1d2d", card: "#222538", card2: "#2d314d", text: "#ffffff", muted: "#a6adce",
+    accent: "#00f0ff", accent2: "#ff007f", accent3: "#39ff14", danger: "#ff4757",
+    wheel1: "#00f0ff", wheel2: "#ff007f", wheel3: "#39ff14", wheel4: "#ffaa00", wheel5: "#9d00ff", wheel6: "#00ffaa", wheel7: "#ff0055", wheel8: "#70ff00", wheel9: "#0051ff", wheel10: "#ffea00",
+    bgGradient: "linear-gradient(135deg, #090a16, #240046, #005f73, #3a0ca3)",
+    orb1: "rgba(57,255,20,0.3)", orb2: "rgba(0,240,255,0.35)"
+  },
+  pastel: {
+    name: "pastel",
+    bg: "#fff0f5", bg2: "#ffe4e1", card: "#ffffff", card2: "#fff5ee", text: "#4a3545", muted: "#8c6b83",
+    accent: "#ff69b4", accent2: "#ba55d3", accent3: "#32cd32", danger: "#ff6347",
+    wheel1: "#ffb6c1", wheel2: "#ffdab9", wheel3: "#fffacd", wheel4: "#e0ffff", wheel5: "#dda0dd", wheel6: "#afeeee", wheel7: "#f0e68c", wheel8: "#98fb98", wheel9: "#dda0dd", wheel10: "#ffc0cb",
+    bgGradient: "linear-gradient(135deg, #ffe4e1, #fff0f5, #e0ffff, #fffacd, #f5eeff)",
+    orb1: "rgba(255,105,180,0.35)", orb2: "rgba(186,85,211,0.35)"
+  },
+  rainbow: {
+    name: "rainbow",
+    bg: "#110022", bg2: "#220044", card: "#1e0536", card2: "#2e0854", text: "#ffffff", muted: "#ffccff",
+    accent: "#ff0055", accent2: "#00ffcc", accent3: "#ffff00", danger: "#ff0033",
+    wheel1: "#ff0000", wheel2: "#ff7700", wheel3: "#ffff00", wheel4: "#00ff00", wheel5: "#00ffff", wheel6: "#0000ff", wheel7: "#4b0082", wheel8: "#8b00ff", wheel9: "#ff00aa", wheel10: "#ffaa00",
+    bgGradient: "linear-gradient(135deg, #ff0000, #ff7700, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff00aa)",
+    orb1: "rgba(255,0,128,0.4)", orb2: "rgba(0,255,255,0.4)"
+  },
+  lightday: {
+    name: "lightday",
+    bg: "#f0f4f8", bg2: "#d9e2ec", card: "#ffffff", card2: "#e4e7eb", text: "#102a43", muted: "#486581",
+    accent: "#0284c7", accent2: "#0d9488", accent3: "#16a34a", danger: "#dc2626",
+    wheel1: "#0284c7", wheel2: "#0d9488", wheel3: "#16a34a", wheel4: "#ca8a04", wheel5: "#9333ea", wheel6: "#db2777", wheel7: "#ea580c", wheel8: "#65a30d", wheel9: "#2563eb", wheel10: "#e11d48",
+    bgGradient: "linear-gradient(135deg, #bae6fd, #e0f2fe, #ccfbf1, #fef08a, #fed7aa)",
+    orb1: "rgba(2,132,199,0.25)", orb2: "rgba(13,148,136,0.25)"
+  },
+  voltage: {
+    name: "voltage",
+    bg: "#080014", bg2: "#18022b", card: "#280447", card2: "#3d086e", text: "#00ffcc", muted: "#ff77ff",
+    accent: "#ff00ea", accent2: "#00ffff", accent3: "#39ff14", danger: "#ff0055",
+    wheel1: "#ff00ea", wheel2: "#00ffff", wheel3: "#39ff14", wheel4: "#ff0055", wheel5: "#ffff00", wheel6: "#ff5500", wheel7: "#7700ff", wheel8: "#00ff88", wheel9: "#ff0088", wheel10: "#00d4ff",
+    bgGradient: "linear-gradient(135deg, #4c0033, #190033, #002b3d, #3d0020, #003311)",
+    orb1: "rgba(255,0,234,0.4)", orb2: "rgba(0,255,255,0.4)"
+  },
+  midnight: {
+    name: "midnight",
+    bg: "#0f1014", bg2: "#181a20", card: "#20232b", card2: "#2a2d36", text: "#f5f5f5", muted: "#999eaa",
+    accent: "#f0f0f0", accent2: "#bbbbbb", accent3: "#8ed8cf", danger: "#ff667f",
+    wheel1: "#eeeeee", wheel2: "#bbbbbb", wheel3: "#8ed8cf", wheel4: "#888f9d", wheel5: "#aaa4c9", wheel6: "#d5a0b8", wheel7: "#91b18c", wheel8: "#c2a984", wheel9: "#b6a8c7", wheel10: "#575d69",
+    bgGradient: "linear-gradient(135deg, #0f172a, #31103f, #1e1b4b, #064e3b)",
+    orb1: "rgba(142,216,207,0.25)", orb2: "rgba(170,164,201,0.25)"
+  }
+};
+
+function setTheme(name) {
+  const theme = themes[name];
+  if (!theme) return;
+  const root = document.documentElement;
+  Object.entries(theme).forEach(([key, value]) => {
+    if (key !== 'name') root.style.setProperty(`--${key}`, value);
+  });
+  
+  document.body.style.background = theme.bgGradient;
+  document.body.style.backgroundSize = "400% 400%";
+  root.style.setProperty('--orb1', theme.orb1);
+  root.style.setProperty('--orb2', theme.orb2);
+  
+  document.body.className = `theme-${theme.name}`;
+  
+  localStorage.setItem("boredomRouletteTheme", name);
+  document.querySelectorAll(".theme-btn").forEach(btn => {
+    btn.classList.toggle("active-theme", btn.dataset.theme === name);
+  });
+  document.getElementById("themePanel").classList.remove("open");
+}
+
+function toggleThemePanel() {
+  document.getElementById("themePanel").classList.toggle("open");
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem("boredomRouletteTheme") || "arcade";
+  setTheme(savedTheme);
+}
+
+function confetti() {
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.top = (-10 - Math.random() * 20) + "px";
+    piece.style.background = ["var(--accent)", "var(--accent2)", "var(--accent3)"][Math.floor(Math.random() * 3)];
+    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+    piece.style.animationDuration = (1.1 + Math.random() * 1.2) + "s";
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 2500);
+  }
+}
+
+function escapeHTML(text) {
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+loadTheme();
+renderSaved();
+updateStreakDisplay();
+</script>
+</body>
+</html>
